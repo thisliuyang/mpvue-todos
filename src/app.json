@@ -1,0 +1,37 @@
+{
+  "pages": [
+    "pages/index/main",
+    "pages/logs/main",
+    "pages/about/main"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "WeChat",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#999",
+    "backgroundColor": "#fafafa",
+    "selectedColor": "#333",
+    "borderStyle": "white",
+
+    "list": [{
+      "text": "代办事项",
+      "pagePath": "pages/index/main",
+      "iconPath": "static/tabs/daibanshixiang.png",
+      "selectedIconPath": "static/tabs/daibanshixiang_active.png"
+    }, {
+      "text": "记录表",
+      "pagePath": "pages/logs/main",
+      "iconPath": "static/tabs/logs.png",
+      "selectedIconPath": "static/tabs/logs_active.png"
+    }, {
+      "text": "关于",
+      "pagePath": "pages/about/main",
+      "iconPath": "static/tabs/about.png",
+      "selectedIconPath": "static/tabs/about_active.png"
+    }],
+    "position": "bottom"
+  }
+}
