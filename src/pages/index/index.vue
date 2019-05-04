@@ -11,16 +11,19 @@
       >
     </header>
     <template v-if="todos.length > 0">
-      <div @click="toggleAll">
+      <div @click="toggleAll" class="all_div">
+        <div class="all_div">
           <icon class="checkbox_all" size="16" :type="completedAll?'success':'circle'"/>
-          <span>全选</span>
+          <span class="all_span">全选</span>
+        </div>
+          <span class="clear-completed" v-show="hasCompleted" @click="delAllCompleted">清除已完成</span>
       </div>
         <div class="todos">
           <ul class="todo-list">
             <li
               class="item"
               :class="{completed:item.completed}"
-              v-for="(item,index) in todos"
+              v-for="(item,index) in filterTodos"
               :key="index"
               @click="toggleTodoHandle(index)"
             >
@@ -31,57 +34,32 @@
           </ul>
         </div>
       <footer class="footer">
-        <span>{{getRemaining}}项代办</span>
+        <span>{{getRemaining}} 项代办</span>
         <div class="filters">
-          <div>全部</div>
-          <div class="fliters_center">进行中</div>
-          <div>已完成</div>
+          <div :class="{active_todo: filterText==='all'}" @click="filterText='all'">全部</div>
+          <div :class="{active_todo: filterText==='active'}" @click="filterText='active'" class="fliters_center">进行中</div>
+          <div :class="{active_todo: filterText==='completed'}" @click="filterText='completed'">已完成</div>
         </div>
-        <span class="clear-completed" v-show="hasCompleted" @click="delAllCompleted">清除已完成</span>
+
       </footer>
     </template>
     <div class="all_completed" v-else>您已经完成所有任务清单！</div>
   </div>
 </template>
 <script>
-// const todos = [
-//   {
-//     id: 1,
-//     title: '吃饭',
-//     completed: false
-//   },
-//   {
-//     id: 2,
-//     title: '睡觉',
-//     completed: false
-//   },
-//   {
-//     id: 3,
-//     title: '抽烟',
-//     completed: true
-//   }
-// ]
-// if (mpvuePlatform === 'my') {
-//   todos = mpvue.getStorageSync({key: 'todos'}).data || []
-//   mpvue.setStorageSync({
-//     key: 'logs',
-//     data: todos
-//   })
-// } else {
-//   todos = mpvue.getStorageSync('todos') || []
-//   todos.unshift(Date.now())
-//   mpvue.setStorageSync('todos', todos)
-// }
+import { formatTime } from '@/utils/index'
 export default {
   data () {
     return {
       message: 'todos',
       newTodo: '',
-      todos: mpvue.getStorageSync('todos') || [],
+      todos: mpvuePlatform === 'my' ? mpvue.getStorageSync({key: 'todos'}).data || [] : mpvue.getStorageSync('todos') || [],
+      logs: mpvuePlatform === 'my' ? mpvue.getStorageSync({key: 'logs'}).data || [] : mpvue.getStorageSync('logs') || [],
       edit: null,
       isFocus: false,
       oldTitle: '',
-      handleCompletedAll: false
+      handleCompletedAll: false,
+      filterText: 'all'
     }
   },
   watch: {
@@ -105,9 +83,22 @@ export default {
       return this.todos.filter((item) => {
         return !item.completed
       }).length
+    },
+    filterTodos () {
+      const { filterText, todos } = this
+      switch (filterText) {
+        case 'all':
+          console.log('todos')
+          return todos
+        case 'active':
+          return todos.filter((item) => !item.completed)
+        case 'completed':
+          return todos.filter((item) => item.completed)
+      }
     }
   },
   methods: {
+    // 添加todo
     handleadd () {
       const inputVal = this.newTodo
       if (inputVal.length === 0) {
@@ -119,10 +110,24 @@ export default {
         completed: false
       })
       this.newTodo = ''
+      this.logs.push({
+        title: '添加',
+        handletime: formatTime(new Date()),
+        name: inputVal
+      })
+      mpvue.setStorageSync('logs', this.logs)
     },
+    // 切换全选
     toggleTodoHandle (index) {
       this.todos[index].completed = !this.todos[index].completed
+      this.logs.push({
+        title: this.todos[index].completed ? '已完成' : '未完成',
+        handletime: formatTime(new Date()),
+        name: this.todos[index].title
+      })
+      mpvue.setStorageSync('logs', this.logs)
     },
+    // 删除todo
     handleDel (index) {
       let _this = this
       wx.showModal({
@@ -130,6 +135,12 @@ export default {
         content: '确认删除吗?',
         success (res) {
           if (res.confirm) {
+            _this.logs.push({
+              title: '删除',
+              handletime: formatTime(new Date()),
+              name: _this.todos[index].title
+            })
+            mpvue.setStorageSync('logs', _this.logs)
             _this.todos.splice(index, 1)
           } else if (res.cancel) {
             console.log('用户点击取消')
@@ -143,7 +154,16 @@ export default {
         item.completed = this.handleCompletedAll
       })
     },
+    // 删除所有已完成
     delAllCompleted () {
+      this.logs.push({
+        title: '删除所有已完成',
+        handletime: formatTime(new Date()),
+        name: this.todos.filter((item) => {
+          return item.completed
+        })
+      })
+      mpvue.setStorageSync('logs', this.logs)
       this.todos = this.todos.filter((item) => {
         return !item.completed
       })
@@ -179,6 +199,7 @@ export default {
   border: 1rpx solid #e0e0e0;
   border-radius: 10rpx;
   box-shadow: 0 0 5rpx #e0e0e0;
+  margin-top: 30rpx;
 }
 .todos .item {
   display: flex;
@@ -188,6 +209,14 @@ export default {
 }
 .todos .item .checkbox {
   margin-right: 20rpx;
+}
+.all_div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.all_div span {
+  font-size: 30rpx;
 }
 .todos .item .name {
   flex: 1;
@@ -203,6 +232,17 @@ export default {
   display: flex;
   margin-bottom: 20rpx;
   padding: 0 10rpx;
+}
+.filters > div {
+  color: inherit;
+  margin: 3rpx;
+  padding: 3rpx 17rpx;
+  text-decoration: none;
+  border: 1rpx solid transparent;
+  border-radius: 13rpx;
+}
+.filters > .active_todo {
+  border-color: #af2f2f33;
 }
 .fliters_center {
   margin: 0 10rpx;

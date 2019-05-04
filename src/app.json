@@ -17,7 +17,7 @@
     "borderStyle": "white",
 
     "list": [{
-      "text": "代办事项",
+      "text": "任务清单",
       "pagePath": "pages/index/main",
       "iconPath": "static/tabs/daibanshixiang.png",
       "selectedIconPath": "static/tabs/daibanshixiang_active.png"
