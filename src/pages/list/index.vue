@@ -1,0 +1,268 @@
+<template>
+  <div class="container" :style="{ 'height' : conHeight}">
+    <div class="list_wrap">
+      <div class="list" v-for="(item, index) in listData" :key="index" @click.prevent="checkCity(item)">
+        <div class="list_l">
+          <p class="list_time">{{ currentTime }}</p>
+          <p class="list_name">{{ item.city }}</p>
+        </div>
+        <div class="list_m">
+          <img :src="item.dayPictureUrl" alt="">
+          <text class="icon_space">{{ item.weatherText }}</text>
+        </div>
+        <div class="list_r">
+          {{ item[selectTemperature] + '°'  }}
+        </div>
+        <div class="delete"  v-show="edit && index !== 0" @click.stop="deleteCity(item, index)">
+          <img src="../../images/delete.png" alt="">
+        </div>
+      </div>
+      <div class="list last_list" style="height:60rpx">
+        <p class="list_tooggle">
+          <span @click="toggleTemperature('centigrade')" :class="{ 'linght' :  selectTemperature === 'centigrade'}">℃ </span>
+          <span> / </span>
+          <span @click="toggleTemperature('Fahrenheit')" :class="{ 'linght' :  selectTemperature === 'Fahrenheit'}">℉</span>
+        </p>
+        <span class="list_tooggle" style="font-size:16px;" @click="edit = !edit">{{ edit ? '完成' : '编辑' }}</span>
+        <span href="/pages/queryCity/main" @click="addCityHandle" class="list_add">
+          <img src="../../images/add.png" alt="">
+        </span>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { fetch } from '@/utils'
+import {mapState, mapMutations} from 'vuex'
+
+export default {
+  components: {},
+  computed: {
+    ...mapState({
+      city: state => state.weather.city,
+      hefeng_key: state => state.hefeng_key,
+      currentCity: state => state.weather.currentCity
+    })
+  },
+  data () {
+    return {
+      listData: [],
+      selectTemperature: 'centigrade',
+      currentTime: '',
+      edit: false,
+      conHeight: '100vh'
+    }
+  },
+  methods: {
+    // 增加城市
+    addCityHandle () {
+      if (this.listData.length > 15) {
+        wx.showModal({
+          title: '提示',
+          content: '最多只能添加15项哦！'
+        })
+        return false
+      }
+      wx.navigateTo({
+        url: '/pages/queryCity/main'
+      })
+    },
+    // 删除城市
+    deleteCity (row, index) {
+      let nextCity = this.listData[index - 1].city
+      this.CHANGE_CURRENT_CITY(nextCity)
+      this.REMOVE_CITY(row.city)
+      this.listData.splice(index, 1)
+    },
+    // 查看城市天气
+    checkCity (row) {
+      this.CHANGE_CURRENT_CITY(row.city)
+      wx.navigateBack()
+    },
+    toggleTemperature (type) {
+      this.selectTemperature = type
+    },
+    setListData (data) {
+      this.listData = []
+      data.forEach((item, index, arr) => {
+        let respone = item.HeWeather6[0]
+        let data = {}
+        data.city = respone.basic.location
+        data.centigrade = respone.now.tmp
+        data.dayPictureUrl = 'https://cdn.heweather.com/cond_icon/' + respone.now.cond_code + '.png'
+        data.Fahrenheit = parseInt(data.centigrade * 1.8 + 32)
+        // data.weatherText = respone.now.cond_txt + '    ' + respone.now.wind_dir + respone.now.wind_sc + '级'
+        data.weatherText = respone.now.cond_txt
+        this.listData.push(data)
+      })
+    },
+    // 修改为接入和风天气数据api
+    async getCity (position) {
+      return new Promise(async (resolve, reject) => {
+        let url = 'https://free-api.heweather.com/s6/weather/now'
+        let params = {
+          location: position,
+          key: this.hefeng_key
+        }
+        let res = await fetch(url, params)
+        res = res.data
+        if (res.HeWeather6[0].basic) {
+          resolve(res)
+        } else {
+          reject(res.HeWeather6[0].status)
+        }
+      })
+    },
+    getAllCity () {
+      let promiseAll = []
+      for (let i in this.city) {
+        let course = this.getCity(i)
+        promiseAll.push(course)
+      }
+      return Promise.all(promiseAll)
+    },
+    ...mapMutations({
+      'SET_CITY': 'SET_CITY',
+      'REMOVE_CITY': 'REMOVE_CITY',
+      'CHANGE_CURRENT_CITY': 'CHANGE_CURRENT_CITY'
+    })
+  },
+  async onShow () {
+    this.edit = false
+    wx.showLoading({
+      title: '加载中'
+    })
+    this.getAllCity().then(respone => {
+      console.log(respone)
+      this.setListData(respone)
+    }).catch(error => {
+      wx.showModal({
+        title: '提示',
+        content: error
+      })
+    })
+    wx.hideLoading()
+  },
+  async created () {
+    // 获取手机可用像素高度
+    // wx.getSystemInfo({
+    //   success: (res) => {
+    //     console.log(res.screenHeight, res.statusBarHeight)
+    //   }
+    // })
+    const time = new Date()
+    let minutes = parseInt(time.getMinutes()) >= 10 ? time.getMinutes() : '0' + time.getMinutes()
+    let timeInterval = parseInt(time.getHours()) >= 12 ? '下午' : '上午'
+    this.currentTime = timeInterval + time.getHours() + ':' + minutes
+  }
+}
+</script>
+
+<style scoped>
+.container {
+  height: 100%;
+  display: flex;
+  width: 750rpx;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  /* padding: 200rpx 0; */
+  color: #24292e;
+  font-size: 13px;
+  font-family: "Helvetica Neue",Helvetica,'microsoft yahei ui', 'microsoft yahei','simhei',Arial,sans-serif;
+  box-sizing: border-box;
+  background: url('https://thisliuyang.cn/public/wx-images/img/beautiful-cold-dawn-547115.jpg') no-repeat;
+  background-size: 100% 100%;
+}
+.list_name{
+  font-size: 22px;
+}
+.delete{
+  margin-left: 20rpx;
+  position: relative;
+}
+.delete::after{
+  position: absolute;
+  content: '';
+  display: inline-block;
+  left: -25rpx;
+  top: -30rpx;
+  right: -25rpx;
+  bottom: -30rpx;
+}
+.delete img{
+  width: 40rpx;
+  height: 40rpx;
+}
+.list_l{
+  width: 260rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.list_r{
+  font-size: 28px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.list_m {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-left: 20rpx;
+  display: flex;
+  align-items: center;
+}
+.list_m img{
+  width: 26px;
+  height: 26px;
+}
+.list{
+  display: flex;
+  height: 80rpx;
+  padding: 10px 15px;
+  background-color: rgba(255, 255, 255, 0.12);
+  /* justify-content: space-between; */
+  align-items: center;
+  position: relative;
+}
+.list::after{
+  position: absolute;
+  content:'';
+  display: inline-block;
+  left: 0;
+  right: 0;
+  height: 2rpx;
+  bottom: 0;
+  background: #fff;
+  transform: scaleY(0.6)
+}
+.last_list{
+  background-color: transparent;
+}
+.last_list::after{
+  display: none;
+}
+.icon_space{
+  font-size: 20px;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  margin: 0 6px;
+}
+.list_tooggle{
+   flex: 1;
+}
+.list_tooggle span{
+  font-size: 16px;
+  color: #d1d1d1
+}
+.linght{
+  color: #fff !important;
+}
+.list_add img{
+  width: 24px;
+  height: 24px;
+}
+</style>
