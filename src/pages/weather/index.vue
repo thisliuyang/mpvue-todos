@@ -72,7 +72,8 @@ export default {
       weatherData: [],
       lifeType: {comf: '舒适度指数', cw: '洗车指数', drsg: '穿衣指数', flu: '感冒指数', sport: '运动指数', trav: '旅游指数', uv: '紫外线指数', air: '空气污染扩散条件指数', ac: '空调开启指数', ag: '过敏指数', gl: '太阳镜指数', mu: '化妆指数', airc: '晾晒指数', ptfc: '交通指数', fsh: '钓鱼指数', spi: '防晒指数'},
       swiperHeight: '150px',
-      currentSwiper: 0
+      currentSwiper: 0,
+      bcgImg: 'https://thisliuyang.cn/public/wx-images/img/backlit-dawn-dusk-327466.jpg'
     }
   },
   // components: {},
@@ -97,7 +98,7 @@ export default {
           key: this.hefeng_key
         }
         let res = await fetch(url, params)
-        console.log(res, 456)
+        res = res.data
         if (res.HeWeather6[0].basic) {
           resolve(res.HeWeather6[0])
         } else {
@@ -124,7 +125,7 @@ export default {
     },
     // 设置原数据
     setWeatherData (res) {
-      console.log(res)
+      // console.log(res)
       let time = new Date()
       res.forEach((item, index, arr) => {
         let minuties = time.getMinutes() >= 10 ? time.getMinutes() : '0' + time.getMinutes()
@@ -136,7 +137,7 @@ export default {
           list.pictureUrl_n = 'https://cdn.heweather.com/cond_icon/' + list.cond_code_n + '.png'
         })
         item.lifestyle.forEach((list, ind, arr1) => {
-          list.liftPictureUrl = '../../images/' + list.type + '.png'
+          list.liftPictureUrl = 'https://thisliuyang.cn/public/wx-images/' + list.type + '.png'
         })
         item.hourly.unshift(Object.assign({}, item.hourly[0]))
         item.hourly.forEach((list, ind, arr1) => {
@@ -155,7 +156,7 @@ export default {
           this.currentSwiper = index
         }
       })
-      console.log(res)
+      // console.log(res)
       this.weatherData = res
     },
     getAllCity () {
@@ -180,14 +181,13 @@ export default {
       }
       let responea = await fetch(url, params)
       let res = responea.data
+      console.log(res, 987)
       if (res.HeWeather6[0].basic) {
         this.SET_CITY({name: res.HeWeather6[0].basic.parent_city, position: str})
         this.CHANGE_CURRENT_CITY(res.HeWeather6[0].basic.parent_city)
-        this.setWeatherData(res.HeWeather6)
+        // this.setWeatherData(res.HeWeather6)
         this.getAllCity().then(respone => {
-          console.log(respone, 'jijiji')
           this.setWeatherData(respone)
-          console.log(respone, 67)
         }).catch(error => {
           wx.showModal({
             title: '提示',
@@ -258,16 +258,30 @@ export default {
 }
 </script>
 
-<style >
+<style scoped>
+.bcg {
+  position:fixed;
+  z-index:-2;
+  height:100%;
+  width:100%;
+  top:0;
+  right:0;
+  bottom:0;
+  left:0;
+}
 .container {
-  height: 100%;
   display: flex;
   width: 750rpx;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   /* padding: 200rpx 0; */
+  color: #24292e;
+  font-size: 13px;
+  font-family: "Helvetica Neue",Helvetica,'microsoft yahei ui', 'microsoft yahei','simhei',Arial,sans-serif;
   box-sizing: border-box;
+  background: url('https://thisliuyang.cn/public/wx-images/img/beach-bird-birds-235787.jpg') no-repeat;
+  background-size: 100% 100%;
 }
 /* this rule will be remove */
 * {
@@ -275,21 +289,6 @@ export default {
   -moz-transition: width 2s;
   -webkit-transition: width 2s;
   -o-transition: width 2s;
-}
-page{
-  height: 100%;
-  color: #24292e;
-}
-page text{
-  font-size: 13px;
-  font-family: "Helvetica Neue",Helvetica,'microsoft yahei ui', 'microsoft yahei','simhei',Arial,sans-serif
-}
-page view{
-  font-size: 13px;
-  font-family: "Helvetica Neue",Helvetica,'microsoft yahei ui', 'microsoft yahei','simhei',Arial,sans-serif
-}
-page {
-  background: #70b0ea;
 }
 .now_header{
   display: flex;
@@ -301,7 +300,7 @@ page {
   height: 90px;
   border-top: 1rpx solid #fff;
   border-bottom: 1rpx solid #fff;
-  background-color: rgba(255, 255, 255, 0.12);
+  /* background-color: rgba(255, 255, 255, 0.12); */
 }
 .hourly_expone{
   font-size: 20px;
@@ -349,7 +348,7 @@ page {
   text-align: center;
   top:0;
   z-index: 66;
-  background-color: #70b0ea;
+  /* background-color: #70b0ea; */
 }
 .weather_now{
   /* margin-top: 150px */

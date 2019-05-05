@@ -1,9 +1,11 @@
 {
   "pages": [
+    "pages/weather/main",
     "pages/index/main",
     "pages/logs/main",
     "pages/about/main",
-    "pages/weather/main"
+    "pages/list/main",
+    "pages/queryCity/main"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -18,10 +20,10 @@
     "borderStyle": "white",
 
     "list": [{
-      "text": "任务清单",
+      "text": "天气",
       "pagePath": "pages/weather/main",
-      "iconPath": "static/tabs/daibanshixiang.png",
-      "selectedIconPath": "static/tabs/daibanshixiang_active.png"
+      "iconPath": "static/tabs/tianqiyubao.png",
+      "selectedIconPath": "static/tabs/tianqiyubao_active.png"
     }, {
       "text": "任务清单",
       "pagePath": "pages/index/main",
