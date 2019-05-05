@@ -23,7 +23,6 @@ export default {
   },
   onShow () {
     this.logs = mpvuePlatform === 'my' ? mpvue.getStorageSync({key: 'logs'}).data || [] : mpvue.getStorageSync('logs') || []
-    console.log(this.logs)
   },
   computed: {
     newLogs () {
