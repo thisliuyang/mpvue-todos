@@ -1,6 +1,6 @@
 # mpvue-todos
 
-> A Mpvue project
+> 用mpvue开发一个生活小助手，有天气预报，可以添加代办事项
 
 ## Build Setup
 
