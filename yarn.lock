@@ -4000,6 +4000,11 @@ move-concurrently@^1.0.1:
     rimraf "^2.5.4"
     run-queue "^1.0.3"
 
+mpvue-calendar@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/mpvue-calendar/-/mpvue-calendar-2.2.0.tgz#836f75aa2d9539113820b93d66c92be0081280af"
+  integrity sha512-WToT4c6zfQZvtiePysFoKfWRN7kK3Wz2if097a+PXah3DNlGehs5E2+JQBjtLSsIDFM+O+YgSZroGKdw8GhzRw==
+
 mpvue-loader@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/mpvue-loader/-/mpvue-loader-2.0.1.tgz#6220e70ef1fecb9d29d5e44f46e107b9081be8e3"

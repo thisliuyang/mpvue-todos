@@ -181,7 +181,7 @@ export default {
       }
       let responea = await fetch(url, params)
       let res = responea.data
-      console.log(res, 987)
+      // console.log(res, 987)
       if (res.HeWeather6[0].basic) {
         this.SET_CITY({name: res.HeWeather6[0].basic.parent_city, position: str})
         this.CHANGE_CURRENT_CITY(res.HeWeather6[0].basic.parent_city)

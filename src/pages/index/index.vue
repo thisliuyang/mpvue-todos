@@ -43,12 +43,23 @@
 
       </footer>
     </template>
-    <div class="all_completed" v-else>您已经完成所有任务清单！</div>
+    <div class="all_completed" v-else>
+      <!-- <calendar @dayClick="dayClick" show-more-days :days-color="daysColor" @nextMonth="next"/> -->
+      <Calendar
+      ref="calendar"
+      lunar />
+      <button @click="setToday">返回今日</button>
+    </div>
   </div>
 </template>
 <script>
+import Calendar from 'mpvue-calendar'
+import 'mpvue-calendar/src/style.css'
 import { formatTime } from '@/utils/index'
 export default {
+  components: {
+    Calendar
+  },
   data () {
     return {
       message: 'todos',
@@ -59,7 +70,13 @@ export default {
       isFocus: false,
       oldTitle: '',
       handleCompletedAll: false,
-      filterText: 'all'
+      filterText: 'all',
+      daysColor: [{
+        month: 'current',
+        day: '3',
+        color: 'pink',
+        background: 'yellow'
+      }]
     }
   },
   watch: {
@@ -117,8 +134,9 @@ export default {
       })
       mpvue.setStorageSync('logs', this.logs)
     },
-    // 切换全选
+    // 切换
     toggleTodoHandle (index) {
+      console.log(index)
       this.todos[index].completed = !this.todos[index].completed
       this.logs.push({
         title: this.todos[index].completed ? '已完成' : '未完成',
@@ -167,6 +185,9 @@ export default {
       this.todos = this.todos.filter((item) => {
         return !item.completed
       })
+    },
+    setToday () {
+      this.$refs.calendar.setToday()
     }
   }
 }

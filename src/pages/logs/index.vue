@@ -1,6 +1,6 @@
 <template>
-  <div class="container_logs">
-    <div v-if="logs.length > 0">
+  <div class="container_logs" :style="{ 'height': containerHeight }">
+    <div v-if="logs.length > 0" style="width:100%;">
       <div v-for="item in newLogs" class="logs item" :key="item.handletime">
         <div>
           <div class="item_name">{{item.name}}</div>
@@ -9,14 +9,25 @@
         <div class="item_title">{{item.title}}</div>
       </div>
     </div>
+    <div class="div_img" v-else>
+      <img src="https://thisliuyang.cn/public/wx-images/time.jpg" alt="">
+    </div>
   </div>
 </template>
 <script>
 export default {
   data () {
     return {
-      logs: []
+      logs: [],
+      containerHeight: '685px'
     }
+  },
+  created () {
+    wx.getSystemInfo({
+      success: (res) => {
+        this.containerHeight = res.screenHeight + 'px'
+      }
+    })
   },
   beforeMount () {
     console.log('12345')
@@ -68,5 +79,13 @@ export default {
 }
 .item:last-child {
   border-bottom: 0;
+}
+.div_img {
+  height: 100%;
+  width: 100%;
+}
+.div_img img {
+  height: 100%;
+  width: 100%;
 }
 </style>
