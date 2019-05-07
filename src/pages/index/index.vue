@@ -11,12 +11,12 @@
       >
     </header>
     <template v-if="todos.length">
-      <div @click="toggleAll" class="all_div">
-        <div class="all_div">
+      <div class="all_div">
+        <div class="all_div" @click="toggleAll">
           <icon class="checkbox_all" size="16" :type="completedAll?'success':'circle'"/>
           <span class="all_span">全选</span>
         </div>
-          <span class="clear-completed" v-show="hasCompleted" @click="delAllCompleted">清除已完成</span>
+        <span class="clear-completed" v-show="hasCompleted" @click="delAllCompleted">清除已完成</span>
       </div>
         <div class="todos">
           <ul class="todo-list">
