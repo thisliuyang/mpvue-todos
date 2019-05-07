@@ -1,6 +1,6 @@
 <template>
   <div class="container_app" id="app">
-    <header class="header">
+    <header class="header" v-if="isShowSearch">
       <image class="plus" src="/static/images/plus.png"/>
       <input
         class="new-todo"
@@ -10,7 +10,7 @@
         @confirm="handleadd"
       >
     </header>
-    <template v-if="todos.length > 0">
+    <template v-if="todos.length">
       <div @click="toggleAll" class="all_div">
         <div class="all_div">
           <icon class="checkbox_all" size="16" :type="completedAll?'success':'circle'"/>
@@ -43,12 +43,23 @@
 
       </footer>
     </template>
-    <div class="all_completed" v-else>您已经完成所有任务清单！</div>
+    <div class="all_completed">
+      <Calendar
+      ref="calendar"
+      @select="select"
+      lunar />
+      <button @click="setToday">返回今日</button>
+    </div>
   </div>
 </template>
 <script>
+import Calendar from 'mpvue-calendar'
+import 'mpvue-calendar/src/style.css'
 import { formatTime } from '@/utils/index'
 export default {
+  components: {
+    Calendar
+  },
   data () {
     return {
       message: 'todos',
@@ -59,7 +70,8 @@ export default {
       isFocus: false,
       oldTitle: '',
       handleCompletedAll: false,
-      filterText: 'all'
+      filterText: 'all',
+      isShowSearch: false
     }
   },
   watch: {
@@ -167,6 +179,14 @@ export default {
       this.todos = this.todos.filter((item) => {
         return !item.completed
       })
+    },
+    // 选中日期
+    select (val, val1) {
+      console.log(val, val1)
+      this.isShowSearch = true
+    },
+    setToday () {
+      this.$refs.calendar.setToday()
     }
   }
 }
@@ -251,7 +271,7 @@ export default {
   margin: 0 20rpx;
 }
 .footer {
-  margin-top: 20rpx;
+  margin: 20rpx 0;
   padding: 0 10rpx;
   display: flex;
   justify-content: space-between;
